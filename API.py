@@ -246,6 +246,22 @@ def delete_activities_item(activity_code):
     except Exception as e:
         return handle_error(str(e), 500)
     
-    
+@app.route("/api/delete/inventory_suppliers/<int:item_code>", methods=["DELETE"])
+def delete_inventory_suppliers_item(item_code):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM inventory_suppliers WHERE item_code = %s", (item_code,))
+        item = cursor.fetchone()
+
+        if not item:
+            return handle_error("Item not found", 404)
+
+        cursor.execute("DELETE FROM inventory_suppliers WHERE item_code = %s", (item_code,))
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": f"Item with code {item_code} deleted successfully"}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
+       
 if __name__ == "__main__":
     app.run(debug=True)
