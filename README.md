@@ -44,6 +44,11 @@ Environment variables needed:
 | /api/update/activities/<int:activity_code>  | PUT      | Update chosen activity code number            |
 | /api/update/inventory_suppliers/<int:item_code> | PUT      | Update chosen item code number                |
 
+## Testing
+ Instructions for running tests:
+ 1. Install the Required Packages: ``` pip install -r requirements.txt ```
+ 2. Ensure your test file ```API_TEST.py``` is set up correctly.
+ 3. Run pytest from the Command Line ```pytest API_TEST.py```
 ## Git Commit Guidelines
 Use conventional commits:
 ```bash
