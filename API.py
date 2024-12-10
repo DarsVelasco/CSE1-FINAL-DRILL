@@ -158,7 +158,6 @@ def create_activity():
         data = request.get_json()
         required_fields = ["activity_code", "activity_description", "item_code", "average_monthly_usage"]
 
-        # Check for missing fields
         for field in required_fields:
             if field not in data:
                 return handle_error(f"Missing required field: {field}", 400)
@@ -180,7 +179,6 @@ def create_inventory_supplier():
         data = request.get_json()
         required_fields = ["item_code", "supplier_code"]
 
-        # Check for missing fields
         for field in required_fields:
             if field not in data:
                 return handle_error(f"Missing required field: {field}", 400)
@@ -193,6 +191,24 @@ def create_inventory_supplier():
         mysql.connection.commit()
 
         return jsonify({"success": True, "message": "Inventory supplier created successfully"}), 201
+    except Exception as e:
+        return handle_error(str(e), 500)
+
+# DELETE METHODS
+@app.route("/api/delete/inventory/<int:item_code>", methods=["DELETE"])
+def delete_inventory_item(item_code):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM inventory WHERE item_code = %s", (item_code,))
+        item = cursor.fetchone()
+
+        if not item:
+            return handle_error("Item not found", 404)
+
+        cursor.execute("DELETE FROM inventory WHERE item_code = %s", (item_code,))
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": f"Item with code {item_code} deleted successfully"}), 200
     except Exception as e:
         return handle_error(str(e), 500)
 
