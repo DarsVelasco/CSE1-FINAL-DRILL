@@ -262,6 +262,42 @@ def delete_inventory_suppliers_item(item_code):
         return jsonify({"success": True, "message": f"Item with code {item_code} deleted successfully"}), 200
     except Exception as e:
         return handle_error(str(e), 500)
+    
+#UPDATE METHODS
+@app.route("/api/update/inventory/<int:item_code>", methods=["PUT"])
+def update_inventory_item(item_code):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM Inventory WHERE item_code = %s", (item_code,))
+        item = cursor.fetchone()
+
+        if not item:
+            return handle_error("Item not found", 404)
+
+        data = request.get_json()
+
+        if not data:
+            return handle_error("No data provided for update", 400)
+
+        update_query = """
+        UPDATE Inventory 
+        SET item_description = %s, item_type_name = %s, quantity_in_stock = %s, reorder_level = %s 
+        WHERE item_code = %s
+        """
+        values = (
+            data.get("item_description", item[1]),  
+            data.get("item_type_name", item[2]),
+            data.get("quantity_in_stock", item[3]),
+            data.get("reorder_level", item[4]),
+            item_code
+        )
+
+        cursor.execute(update_query, values)
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": f"Item with code {item_code} updated successfully"}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
        
 if __name__ == "__main__":
     app.run(debug=True)
