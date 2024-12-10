@@ -16,7 +16,7 @@ def handle_error(message, status_code):
 
 @app.route("/", methods=["GET"])
 def welcome():
-    return "Welcome to the Minimized Inventory Control for Sports Centers API!", 200
+    return "Welcome to the Inventory Control for Sports Centers API!", 200
 
 
 #GET METHODS
