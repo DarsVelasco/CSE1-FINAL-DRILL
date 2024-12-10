@@ -84,3 +84,25 @@ def get_activities():
         return jsonify({"success": True, "data": activities_list, "total": len(activities_list)}), 200
     except Exception as e:
         return handle_error(str(e), 500)
+    
+@app.route("/api/inventory_suppliers", methods=["GET"])
+def get_inventory_suppliers():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM inventory_suppliers")
+        inventory_suppliers = cursor.fetchall()
+
+        if not inventory_suppliers:
+            return handle_error("No activities found", 404)
+
+        inventory_suppliers_list = [
+            {
+                "item_code": inventory_supplier[0],
+                "supplier_code": inventory_supplier[1],
+            }
+            for inventory_supplier in inventory_suppliers
+        ]
+
+        return jsonify({"success": True, "data": inventory_suppliers_list, "total": len(inventory_suppliers_list)}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
