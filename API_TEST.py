@@ -140,3 +140,80 @@ def test_create_supplier_success(mock_db):
     
     assert response.status_code == 201
     assert b"Supplier created successfully" in response.data
+
+# Activities tests
+def test_get_activities_empty(mock_db):
+    mock_db.fetchall.return_value = []
+    
+    client = app.test_client()
+    response = client.get('/api/activities')
+    
+    assert response.status_code == 404
+    assert b"No activities found" in response.data
+
+def test_get_activities(mock_db):
+    mock_db.fetchall.return_value = [(1, 'Basketball Practice')]
+    
+    client = app.test_client()
+    response = client.get('/api/activities')
+    
+    assert response.status_code == 200
+    assert b"Basketball Practice" in response.data
+
+def test_create_activity_missing_fields(mock_db):
+    client = app.test_client()
+    response = client.post('/api/add/activity', json={})
+    
+    assert response.status_code == 400
+    assert b"Missing required field: activity_name" in response.data
+
+def test_create_activity_success(mock_db):
+    mock_db.rowcount = 1
+    
+    client = app.test_client()
+    response = client.post('/api/add/activity', json={
+        'activity_name': 'Soccer Training'
+    })
+    
+    assert response.status_code == 201
+    assert b"Activity created successfully" in response.data
+
+# Inventory-Supplier tests
+def test_get_inventory_suppliers_empty(mock_db):
+    mock_db.fetchall.return_value = []
+    
+    client = app.test_client()
+    response = client.get('/api/inventory-suppliers')
+    
+    assert response.status_code == 404
+    assert b"No inventory-supplier relationships found" in response.data
+
+def test_get_inventory_suppliers(mock_db):
+    mock_db.fetchall.return_value = [(1, 101, 'SportsCo')]
+    
+    client = app.test_client()
+    response = client.get('/api/inventory-suppliers')
+    
+    assert response.status_code == 200
+    assert b"SportsCo" in response.data
+
+def test_create_inventory_supplier_missing_fields(mock_db):
+    client = app.test_client()
+    response = client.post('/api/add/inventory-supplier', json={})
+    
+    assert response.status_code == 400
+    assert b"Missing required field: inventory_item_id" in response.data
+
+def test_create_inventory_supplier_success(mock_db):
+    mock_db.rowcount = 1
+    
+    client = app.test_client()
+    response = client.post('/api/add/inventory-supplier', json={
+        'inventory_item_id': 101, 'supplier_id': 1
+    })
+    
+    assert response.status_code == 201
+    assert b"Inventory-Supplier relationship created successfully" in response.data
+
+if __name__ == "__main__":
+    pytest.main()
