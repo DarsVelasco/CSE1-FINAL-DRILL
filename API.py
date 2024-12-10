@@ -173,6 +173,28 @@ def create_activity():
         return jsonify({"success": True, "message": "Activity created successfully"}), 201
     except Exception as e:
         return handle_error(str(e), 500)
+    
+@app.route("/api/add/inventory_suppliers", methods=["POST"])
+def create_inventory_supplier():
+    try:
+        data = request.get_json()
+        required_fields = ["item_code", "supplier_code"]
+
+        # Check for missing fields
+        for field in required_fields:
+            if field not in data:
+                return handle_error(f"Missing required field: {field}", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            INSERT INTO inventory_suppliers (item_code, supplier_code)
+            VALUES (%s, %s)
+        """, (data["item_code"], data["supplier_code"]))
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": "Inventory supplier created successfully"}), 201
+    except Exception as e:
+        return handle_error(str(e), 500)
 
 
 if __name__ == "__main__":
