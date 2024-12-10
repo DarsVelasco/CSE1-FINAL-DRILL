@@ -204,13 +204,13 @@ def create_inventory_supplier():
 def delete_inventory_item(item_code):
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM inventory WHERE item_code = %s", (item_code,))
+        cursor.execute("SELECT * FROM inventory WHERE item_code = %s", (item_code))
         item = cursor.fetchone()
 
-        if not item:
+        if cursor.rowcount == 0:
             return handle_error("Item not found", 404)
 
-        cursor.execute("DELETE FROM inventory WHERE item_code = %s", (item_code,))
+        cursor.execute("DELETE FROM inventory WHERE item_code = %s", (item_code))
         mysql.connection.commit()
 
         return jsonify({"success": True, "message": f"Item with code {item_code} deleted successfully"}), 200
@@ -224,7 +224,7 @@ def delete_suppliers_item(supplier_code):
         cursor.execute("SELECT * FROM suppliers WHERE supplier_code = %s", (supplier_code,))
         item = cursor.fetchone()
 
-        if not item:
+        if cursor.rowcount == 0:
             return handle_error("Item not found", 404)
 
         cursor.execute("DELETE FROM suppliers WHERE supplier_code = %s", (supplier_code,))
@@ -241,7 +241,7 @@ def delete_activities_item(activity_code):
         cursor.execute("SELECT * FROM activities WHERE activity_code = %s", (activity_code,))
         item = cursor.fetchone()
 
-        if not item:
+        if cursor.rowcount == 0:
             return handle_error("Item not found", 404)
 
         cursor.execute("DELETE FROM activities WHERE activity_code = %s", (activity_code,))
@@ -258,7 +258,7 @@ def delete_inventory_suppliers_item(item_code):
         cursor.execute("SELECT * FROM inventory_suppliers WHERE item_code = %s", (item_code,))
         item = cursor.fetchone()
 
-        if not item:
+        if cursor.rowcount == 0:
             return handle_error("Item not found", 404)
 
         cursor.execute("DELETE FROM inventory_suppliers WHERE item_code = %s", (item_code,))
@@ -344,7 +344,7 @@ def update_activities_item(activity_code):
         cursor.execute("SELECT * FROM Activities WHERE activity_code = %s", (activity_code,))
         item = cursor.fetchone()
 
-        if not item:
+        if cursor.rowcount == 0:
             return handle_error("Item not found", 404)
 
         data = request.get_json()
