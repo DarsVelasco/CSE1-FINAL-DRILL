@@ -37,3 +37,26 @@ def get_inventory():
         return jsonify({"success": True, "data": inventory_list, "total": len(inventory_list)}), 200
     except Exception as e:
         return handle_error(str(e), 500)
+    
+@app.route("/api/suppliers", methods=["GET"])
+def get_suppliers():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM Suppliers")
+        suppliers = cursor.fetchall()
+
+        if not suppliers:
+            return handle_error("No suppliers found", 404)
+
+        suppliers_list = [
+            {
+                "supplier_code": supplier[0],
+                "supplier_name": supplier[1],
+                "supplier_phone": supplier[2],
+            }
+            for supplier in suppliers
+        ]
+
+        return jsonify({"success": True, "data": suppliers_list, "total": len(suppliers_list)}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
