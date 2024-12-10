@@ -365,6 +365,38 @@ def update_activities_item(activity_code):
         return jsonify({"success": True, "message": f"Activity with code {activity_code} updated successfully"}), 200
     except Exception as e:
         return handle_error(str(e), 500)
-    
+
+@app.route("/api/update/inventory_suppliers/<int:item_code>", methods=["PUT"])
+def update_inventory_suppliers_item(item_code):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM inventory_suppliers WHERE item_code = %s", (item_code,))
+        item = cursor.fetchone()
+
+        if not item:
+            return handle_error("Item not found", 404)
+
+        data = request.get_json()
+
+        if not data:
+            return handle_error("No data provided for update", 400)
+
+        update_query = """
+        UPDATE inventory_suppliers 
+        SET supplier_code = %s
+        WHERE item_code = %s
+        """
+        values = (
+            data.get("supplier_code", item[1]), 
+            item_code
+        )
+
+        cursor.execute(update_query, values)
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": f"Inventory supplier record with item code {item_code} updated successfully"}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
+
 if __name__ == "__main__":
     app.run(debug=True)
