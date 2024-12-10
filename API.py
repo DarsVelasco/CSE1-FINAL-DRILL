@@ -10,9 +10,11 @@ app.config['MYSQL_DB'] = 'minimized_inventory_control_for_sports_centers'
 
 mysql = MySQL(app)
 
+# Error handling
 def handle_error(message, status_code):
     return jsonify({"success": False, "error": message}), status_code
 
+#GET METHODS
 @app.route("/api/inventory", methods=["GET"])
 def get_inventory():
     try:
@@ -106,3 +108,28 @@ def get_inventory_suppliers():
         return jsonify({"success": True, "data": inventory_suppliers_list, "total": len(inventory_suppliers_list)}), 200
     except Exception as e:
         return handle_error(str(e), 500)
+    
+#POST METHODS
+@app.route("/api/add/inventory", methods=["POST"])
+def create_inventory():
+    try:
+        data = request.get_json()
+        required_fields = ["item_code", "item_description", "item_type_name", "quantity_in_stock", "reorder_level"]
+
+        for field in required_fields:
+            if field not in data:
+                return handle_error(f"Missing required field: {field}", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            INSERT INTO Inventory (item_code, item_description, item_type_name, quantity_in_stock, reorder_level)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (data["item_code"], data["item_description"], data["item_type_name"], data["quantity_in_stock"], data["reorder_level"]))
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": "Inventory item created successfully"}), 201
+    except Exception as e:
+        return handle_error(str(e), 500)
+
+if __name__ == "__main__":
+    app.run(debug=True)
