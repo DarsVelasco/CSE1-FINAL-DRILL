@@ -14,6 +14,11 @@ mysql = MySQL(app)
 def handle_error(message, status_code):
     return jsonify({"success": False, "error": message}), status_code
 
+@app.route("/", methods=["GET"])
+def welcome():
+    return "Welcome to the Minimized Inventory Control for Sports Centers API!", 200
+
+
 #GET METHODS
 @app.route("/api/inventory", methods=["GET"])
 def get_inventory():
