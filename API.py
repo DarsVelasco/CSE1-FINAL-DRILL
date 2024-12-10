@@ -151,6 +151,29 @@ def create_supplier():
         return jsonify({"success": True, "message": "Supplier created successfully"}), 201
     except Exception as e:
         return handle_error(str(e), 500)
+    
+@app.route("/api/add/activities", methods=["POST"])
+def create_activity():
+    try:
+        data = request.get_json()
+        required_fields = ["activity_code", "activity_description", "item_code", "average_monthly_usage"]
+
+        # Check for missing fields
+        for field in required_fields:
+            if field not in data:
+                return handle_error(f"Missing required field: {field}", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            INSERT INTO Activities (activity_code, activity_description, item_code, average_monthly_usage)
+            VALUES (%s, %s, %s, %s)
+        """, (data["activity_code"], data["activity_description"], data["item_code"], data["average_monthly_usage"]))
+        mysql.connection.commit()
+
+        return jsonify({"success": True, "message": "Activity created successfully"}), 201
+    except Exception as e:
+        return handle_error(str(e), 500)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
