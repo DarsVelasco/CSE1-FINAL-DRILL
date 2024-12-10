@@ -12,3 +12,28 @@ mysql = MySQL(app)
 
 def handle_error(message, status_code):
     return jsonify({"success": False, "error": message}), status_code
+
+@app.route("/api/inventory", methods=["GET"])
+def get_inventory():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM Inventory")
+        inventory_items = cursor.fetchall()
+
+        if not inventory_items:
+            return handle_error("No inventory items found", 404)
+
+        inventory_list = [
+            {
+                "item_code": item[0],
+                "item_description": item[1],
+                "item_type_name": item[2],
+                "quantity_in_stock": item[3],
+                "reorder_level": item[4],
+            }
+            for item in inventory_items
+        ]
+
+        return jsonify({"success": True, "data": inventory_list, "total": len(inventory_list)}), 200
+    except Exception as e:
+        return handle_error(str(e), 500)
