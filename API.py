@@ -9,3 +9,6 @@ app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'minimized_inventory_control_for_sports_centers'
 
 mysql = MySQL(app)
+
+def handle_error(message, status_code):
+    return jsonify({"success": False, "error": message}), status_code
