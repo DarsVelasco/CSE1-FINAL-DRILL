@@ -1,0 +1,5 @@
+Flask==2.3.3
+flask-mysqldb==1.0.1
+pytest==7.4.0
+pytest-mock==3.10.0
+mock==5.0.1
