@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 from http import HTTPStatus
 import jwt
 from datetime import datetime, timedelta
@@ -28,11 +28,15 @@ def handle_error(message, status_code):
 
 @app.route("/", methods=["GET"])
 def welcome():
-    return "Welcome to the Inventory Control for Sports Centers API!", HTTPStatus.OK
+    return render_template_string("""
+        <h1>Welcome to the Inventory Control for Sports Centers API!</h1>
+        <a href="/api/register">Register</a><br>
+        <a href="/api/login">Login</a>
+    """), HTTPStatus.OK
 
 # JWT ROLES
 def create_jwt(user_id, role):
-    payload = {
+    payload = { 
         'user_id': user_id,
         'role': role,
         'exp': datetime.utcnow() + timedelta(hours=1),
