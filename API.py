@@ -1,14 +1,26 @@
 from flask import Flask, jsonify, request
-from flask_mysqldb import MySQL
 from http import HTTPStatus
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
+import json
+from flask_mysqldb import MySQL
+import os
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'minimized_inventory_control_for_sports_centers'
-
+app.config['SECRET_KEY'] = 'darwin'
 mysql = MySQL(app)
+
+USER_DATA_FILE = 'users.json'
+
+if not os.path.exists(USER_DATA_FILE):
+    with open(USER_DATA_FILE, 'w') as f:
+        json.dump({}, f)
 
 # Error handling
 def handle_error(message, status_code):
@@ -16,11 +28,111 @@ def handle_error(message, status_code):
 
 @app.route("/", methods=["GET"])
 def welcome():
-    return "Welcome to the Inventory Control for Sports Centers API!", 200
+    return "Welcome to the Inventory Control for Sports Centers API!", HTTPStatus.OK
 
+# JWT ROLES
+def create_jwt(user_id, role):
+    payload = {
+        'user_id': user_id,
+        'role': role,
+        'exp': datetime.utcnow() + timedelta(hours=1),
+        'iat': datetime.utcnow()
+    }
+    return jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+def verify_jwt(token):
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+# Security
+def token_required(roles=None):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            if not token:
+                return handle_error('Token is missing', HTTPStatus.UNAUTHORIZED)
+
+            token = token.split(" ")[1] if " " in token else token
+            payload = verify_jwt(token)
+            if not payload:
+                return handle_error('Token is invalid or expired', HTTPStatus.UNAUTHORIZED)
+
+            if roles and payload['role'] not in roles:
+                return handle_error('You do not have permission to access this resource', HTTPStatus.FORBIDDEN)
+
+            request.user = payload
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+def load_users():
+    with open(USER_DATA_FILE, 'r') as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USER_DATA_FILE, 'w') as f:
+        json.dump(users, f)
+
+# Authentication Register and Login
+@app.route("/api/register", methods=["POST"])
+def register():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role")
+
+        if not email or not password or not role:
+            return handle_error("Email, password, and role are required", HTTPStatus.BAD_REQUEST)
+
+        users = load_users()
+        if email in users:
+            return handle_error("User already exists", HTTPStatus.BAD_REQUEST)
+
+        hashed_password = generate_password_hash(password)
+        users[email] = {
+            "password": hashed_password,
+            "role": role
+        }
+        save_users(users)
+
+        return jsonify({"success": True, "message": "User registered successfully"}), HTTPStatus.CREATED
+    except Exception as e:
+        return handle_error(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+
+        if not email or not password:
+            return handle_error("Email and password are required", HTTPStatus.BAD_REQUEST)
+
+        users = load_users()
+        user = users.get(email)
+
+        if user and check_password_hash(user["password"], password):
+            token = create_jwt(email, user["role"])
+            return jsonify({"success": True, "token": token}), HTTPStatus.OK
+
+        return handle_error("Invalid email or password", HTTPStatus.UNAUTHORIZED)
+    except Exception as e:
+        return handle_error(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 #GET METHODS
 @app.route("/api/inventory", methods=["GET"])
+@token_required(roles=["admin"])
 def get_inventory():
     try:
         cursor = mysql.connection.cursor()
@@ -46,6 +158,7 @@ def get_inventory():
         return handle_error(str(e), 500)
     
 @app.route("/api/suppliers", methods=["GET"])
+@token_required(roles=["admin" , "user"])
 def get_suppliers():
     try:
         cursor = mysql.connection.cursor()
@@ -69,6 +182,7 @@ def get_suppliers():
         return handle_error(str(e), 500)
     
 @app.route("/api/activities", methods=["GET"])
+@token_required(roles=["admin", "user"])
 def get_activities():
     try:
         cursor = mysql.connection.cursor()
@@ -93,6 +207,7 @@ def get_activities():
         return handle_error(str(e), 500)
     
 @app.route("/api/inventory_suppliers", methods=["GET"])
+@token_required(roles=["admin"])
 def get_inventory_suppliers():
     try:
         cursor = mysql.connection.cursor()
