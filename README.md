@@ -23,7 +23,6 @@ Environment variables needed:
 - ```SECRET_KEY=""``` : darwin
 
 ## API Endpoints
-## API Endpoints
 
 | Endpoint                                     | Method   | Description                                    |
 |---------------------------------------------|----------|------------------------------------------------|
