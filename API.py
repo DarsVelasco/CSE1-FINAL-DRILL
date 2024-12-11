@@ -32,6 +32,7 @@ def welcome():
         <h1>Welcome to the Inventory Control for Sports Centers API!</h1>
         <a href="/api/register">Register</a><br>
         <a href="/api/login">Login</a>
+        <a href="/api/inventory">Inventory</a><br>
     """), HTTPStatus.OK
 
 # JWT ROLES
