@@ -231,6 +231,7 @@ def get_inventory_suppliers():
     
 #POST METHODS
 @app.route("/api/add/inventory", methods=["POST"])
+@token_required(roles=["admin"])
 def create_inventory():
     try:
         data = request.get_json()
@@ -252,6 +253,7 @@ def create_inventory():
         return handle_error(str(e), 500)
     
 @app.route("/api/add/suppliers", methods=["POST"])
+@token_required(roles=["admin", "user"])
 def create_supplier():
     try:
         data = request.get_json()
@@ -273,6 +275,7 @@ def create_supplier():
         return handle_error(str(e), 500)
     
 @app.route("/api/add/activities", methods=["POST"])
+@token_required(roles=["admin"])
 def create_activity():
     try:
         data = request.get_json()
@@ -294,6 +297,7 @@ def create_activity():
         return handle_error(str(e), 500)
     
 @app.route("/api/add/inventory_suppliers", methods=["POST"])
+@token_required(roles=["admin"])
 def create_inventory_supplier():
     try:
         data = request.get_json()
