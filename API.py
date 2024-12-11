@@ -319,25 +319,24 @@ def create_inventory_supplier():
         return handle_error(str(e), 500)
 
 # DELETE METHODS
-@app.route("/api/delete/inventory/<int:item_code>", methods=["DELETE"])
+@app.route("/api/delete/inventory/<item_code>", methods=["DELETE"])
 @token_required(roles=["admin"])
 def delete_inventory_item(item_code):
     try:
+        # Logic for deleting the item
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM inventory WHERE item_code = %s", (item_code))
-        item = cursor.fetchone()
-
-        if cursor.rowcount == 0:
-            return handle_error("Item not found", 404)
-
-        cursor.execute("DELETE FROM inventory WHERE item_code = %s", (item_code))
+        cursor.execute("DELETE FROM Inventory WHERE item_code = %s", (item_code,))
         mysql.connection.commit()
 
-        return jsonify({"success": True, "message": f"Item with code {item_code} deleted successfully"}), 200
-    except Exception as e:
-        return handle_error(str(e), 500)
+        if cursor.rowcount == 0:
+            return handle_error("Item not found", HTTPStatus.NOT_FOUND)
 
-@app.route("/api/delete/suppliers/<int:supplier_code>", methods=["DELETE"])
+        return jsonify({"success": True, "message": "Item deleted successfully"}), HTTPStatus.OK
+    except Exception as e:
+        return handle_error(f"An error occurred: {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@app.route("/api/delete/suppliers/<supplier_code>", methods=["DELETE"])
 @token_required(roles=["admin"])
 def delete_suppliers_item(supplier_code):
     try:
@@ -355,7 +354,7 @@ def delete_suppliers_item(supplier_code):
     except Exception as e:
         return handle_error(str(e), 500)
     
-@app.route("/api/delete/activities/<int:activity_code>", methods=["DELETE"])
+@app.route("/api/delete/activities/<activity_code>", methods=["DELETE"])
 @token_required(roles=["admin"])
 def delete_activities_item(activity_code):
     try:
@@ -373,7 +372,7 @@ def delete_activities_item(activity_code):
     except Exception as e:
         return handle_error(str(e), 500)
     
-@app.route("/api/delete/inventory_suppliers/<int:item_code>", methods=["DELETE"])
+@app.route("/api/delete/inventory_suppliers/<item_code>", methods=["DELETE"])
 @token_required(roles=["admin"])
 def delete_inventory_suppliers_item(item_code):
     try:
