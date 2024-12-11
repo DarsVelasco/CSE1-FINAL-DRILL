@@ -31,8 +31,8 @@ def welcome():
     return render_template_string("""
         <h1>Welcome to the Inventory Control for Sports Centers API!</h1>
         <a href="/api/register">Register</a><br>
-        <a href="/api/login">Login</a>
-        <a href="/api/inventory">Inventory</a><br>
+        <a href="/api/login">Login</a><br>
+        <a href="/api/activity">Activity</a><br>
     """), HTTPStatus.OK
 
 # JWT ROLES
