@@ -186,7 +186,6 @@ def get_suppliers():
         return handle_error(str(e), 500)
     
 @app.route("/api/activities", methods=["GET"])
-@token_required(roles=["admin", "user"])
 def get_activities():
     try:
         cursor = mysql.connection.cursor()
