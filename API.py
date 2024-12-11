@@ -320,6 +320,7 @@ def create_inventory_supplier():
 
 # DELETE METHODS
 @app.route("/api/delete/inventory/<int:item_code>", methods=["DELETE"])
+@token_required(roles=["admin"])
 def delete_inventory_item(item_code):
     try:
         cursor = mysql.connection.cursor()
@@ -337,6 +338,7 @@ def delete_inventory_item(item_code):
         return handle_error(str(e), 500)
 
 @app.route("/api/delete/suppliers/<int:supplier_code>", methods=["DELETE"])
+@token_required(roles=["admin"])
 def delete_suppliers_item(supplier_code):
     try:
         cursor = mysql.connection.cursor()
@@ -354,6 +356,7 @@ def delete_suppliers_item(supplier_code):
         return handle_error(str(e), 500)
     
 @app.route("/api/delete/activities/<int:activity_code>", methods=["DELETE"])
+@token_required(roles=["admin"])
 def delete_activities_item(activity_code):
     try:
         cursor = mysql.connection.cursor()
@@ -371,6 +374,7 @@ def delete_activities_item(activity_code):
         return handle_error(str(e), 500)
     
 @app.route("/api/delete/inventory_suppliers/<int:item_code>", methods=["DELETE"])
+@token_required(roles=["admin"])
 def delete_inventory_suppliers_item(item_code):
     try:
         cursor = mysql.connection.cursor()
