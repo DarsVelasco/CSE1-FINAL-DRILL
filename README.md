@@ -20,7 +20,7 @@ Environment variables needed:
 - ```MYSQL_USER=""``` : Your User name
 - ```MYSQL_PASSWORD=""``` : Your Password
 - ```MYSQL_DB=""``` : Your Database Name
-- ```SECRET_KEY=""``` : Your Secret Key
+- ```SECRET_KEY=""``` : darwin
 
 ## API Endpoints
 ## API Endpoints
