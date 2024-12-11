@@ -393,6 +393,7 @@ def delete_inventory_suppliers_item(item_code):
     
 #UPDATE METHODS
 @app.route("/api/update/inventory/<int:item_code>", methods=["PUT"])
+@token_required(roles=["admin"])
 def update_inventory_item(item_code):
     try:
         cursor = mysql.connection.cursor()
@@ -428,6 +429,7 @@ def update_inventory_item(item_code):
         return handle_error(str(e), 500)
 
 @app.route("/api/update/suppliers/<int:supplier_code>", methods=["PUT"])
+@token_required(roles=["admin", "user"])
 def update_suppliers_item(supplier_code):
     try:
         cursor = mysql.connection.cursor()
@@ -461,6 +463,7 @@ def update_suppliers_item(supplier_code):
         return handle_error(str(e), 500)
 
 @app.route("/api/update/activities/<int:activity_code>", methods=["PUT"])
+@token_required(roles=["admin", "user"])
 def update_activities_item(activity_code):
     try:
         cursor = mysql.connection.cursor()
@@ -495,6 +498,7 @@ def update_activities_item(activity_code):
         return handle_error(str(e), 500)
 
 @app.route("/api/update/inventory_suppliers/<int:item_code>", methods=["PUT"])
+@token_required(roles=["admin"])
 def update_inventory_suppliers_item(item_code):
     try:
         cursor = mysql.connection.cursor()
