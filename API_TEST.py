@@ -101,6 +101,51 @@ def test_post_supplier_success(mock_db):
     assert response.status_code == 201
     assert b"Supplier created successfully" in response.data
 
+# Tests for Activities
+def test_get_activities_empty(mock_db):
+    mock_db.fetchall.return_value = []
+    
+    client = app.test_client()
+    response = client.get('/api/activities')
+    
+    assert response.status_code == 404
+    assert b"No activities found" in response.data
+
+def test_get_activities_success(mock_db):
+    mock_db.fetchall.return_value = [
+        (1, "Soccer Match", 101, 20)
+    ]
+    
+    client = app.test_client()
+    response = client.get('/api/activities')
+    
+    assert response.status_code == 200
+    assert b"Soccer Match" in response.data
+    assert b"101" in response.data
+
+def test_post_activity_missing_fields(mock_db):
+    client = app.test_client()
+    response = client.post('/api/add/activities', json={}) 
+    
+    assert response.status_code == 400
+    assert b"Missing required field" in response.data
+
+def test_post_activity_success(mock_db):
+    mock_db.rowcount = 1  
+    
+    client = app.test_client()
+    response = client.post('/api/add/activities', json={
+        "activity_code": 1,
+        "activity_description": "Basketball Game",
+        "item_code": 101,
+        "average_monthly_usage": 30
+    })
+    
+    assert response.status_code == 201
+    assert b"Activity created successfully" in response.data
+
+
+
 # Delete and Update Tests
 def test_delete_inventory_not_found(mock_db):
     mock_db.rowcount = 0
